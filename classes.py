@@ -9,6 +9,21 @@ class Course:
         self._start_time = start_time
         self._finish_time = finish_time
         self._day = day
+    
+    def get_group(self):
+        return self._group
+    
+    def get_room(self):
+        return self._group
+    
+    def get_start_time(self):
+        return self._start_time
+    
+    def get_finish_time(self):
+        return self._finish_time
+    
+    def get_day(self):
+        return self._day
 
 
 class TeacherPlan:
@@ -22,5 +37,7 @@ class TeacherPlan:
             self._courselist = []
         self._courselist = courselist
 
-    def add_course(self, course):
-        self._courselist.append(course)
+    def add_course(self, newcourse):
+        for course in allcourselist:
+
+        self._courselist.append(newcourse)
