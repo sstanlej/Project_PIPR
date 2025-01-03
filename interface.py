@@ -1,14 +1,70 @@
 import os
+from data_files import data
+from classes import (Database, Course, TeacherPlan,
+                     RoomCollisionError, WrongCourseIdError,
+                     GroupCollisionError)
 
 
 def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
-def print_list_of_teachers():
+def option1():
     clear()
     print('============================================================')
     print('The list of all teachers:\n')
+    teacherlist = data.database0.get_allteacherslist()
+    if teacherlist == []:
+        print('There are no teachers in the database.')
+        print('Would you like to add a new teacher?')
+    else:
+        for teacher in teacherlist:
+            x = 1
+            print(f'{x}. {teacher.get_name()} {teacher.get_surname()}')
+            print(' groups: ')
+            groups = ''
+            for group in teacher.get_grouplist():
+                groups += f'{str(group)} '
+            print(groups)
+
+
+def option2():
+    clear()
+
+
+def option3():
+    clear()
+
+
+def option4():
+    clear()
+
+
+def option5():
+    clear()
+
+
+def wrong_input():
+    print("Wrong input, please input a number from 0 to 5")
+    input_and_go()
+
+
+def input_and_go():
+    choice = input(">> ")
+    if choice == '0':
+        return
+    elif choice == '1':
+        option1()
+    elif choice == '2':
+        option2()
+    elif choice == '3':
+        option3()
+    elif choice == '4':
+        option4()
+    elif choice == '5':
+        option5()
+    else:
+        wrong_input()
 
 
 def print_main_menu():
@@ -24,8 +80,4 @@ def print_main_menu():
     print('5. Load data from a file')
     print('0. Exit')
     print('============================================================')
-    choice = input(">> ")
-    if choice == "1":
-        print_list_of_teachers()
-    elif choice == "0":
-        return
+    input_and_go()

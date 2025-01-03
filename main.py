@@ -1,6 +1,6 @@
 from interface import (print_main_menu,
-                       print_list_of_teachers,
                        clear)
+from data_files import data
 
 
 def main():
