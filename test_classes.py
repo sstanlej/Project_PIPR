@@ -1,8 +1,8 @@
 from classes import (Course, TeacherPlan,
                      GroupCollisionError, RoomCollisionError)
 
-from all_course_list import allcourselist
 from datetime import time
+import pytest
 
 
 def test_create_course():
@@ -50,3 +50,27 @@ def test_add_course():
     teacherplan1.add_course(course2)
     courselist = teacherplan1.get_courselist()
     assert courselist[1].get_finish_time() == finish_time2
+
+
+def test_course_collision():
+    start_time1 = time(8, 15)
+    finish_time1 = time(10, 0)
+    start_time2 = time(9, 15)
+    finish_time2 = time(11, 0)
+
+    course1 = Course('mako', 104, 's13',
+                     start_time1, finish_time1, 'wednesday')
+    course2 = Course('mako', 104, 's14',
+                     start_time2, finish_time2, 'wednesday')
+    course3 = Course('anma', 108, 's13',
+                     start_time1, finish_time1, 'wednesday')
+
+    teacherplan1 = TeacherPlan('Jan', 'Ban', [104], [])
+    teacherplan1.add_course(course1)
+    courselist = teacherplan1.get_courselist()
+    assert courselist[0].get_name() == 'mako'
+    with pytest.raises(GroupCollisionError):
+        teacherplan1.add_course(course2)
+    teacherplan2 = TeacherPlan('San', 'Tan', [108], [])
+    with pytest.raises(RoomCollisionError):
+        teacherplan2.add_course(course3)
