@@ -8,7 +8,8 @@ import pytest
 def test_create_course():
     start_time = time(8, 15)
     finish_time = time(10, 0)
-    course1 = Course('mako', 104, 's13', start_time, finish_time, 'wednesday')
+    course1 = Course(0, 'mako', 104, 's13', start_time, finish_time, 'wednesday')
+    assert course1.get_id() == 0
     assert course1.get_name() == 'mako'
     assert course1.get_group() == 104
     assert course1.get_room() == 's13'
@@ -20,11 +21,11 @@ def test_create_course():
 def test_create_teacherplan():
     start_time1 = time(8, 15)
     finish_time1 = time(10, 0)
-    course1 = Course('mako', 104, 's13',
+    course1 = Course(0, 'mako', 104, 's13',
                      start_time1, finish_time1, 'wednesday')
     start_time2 = time(10, 15)
     finish_time2 = time(12, 0)
-    course2 = Course('mako', 104, 's13',
+    course2 = Course(1, 'mako', 104, 's13',
                      start_time2, finish_time2, 'wednesday')
     teacherplan1 = TeacherPlan('Jan', 'Ban', [104], [course1, course2])
     assert teacherplan1.get_name() == 'Jan'
@@ -37,11 +38,11 @@ def test_create_teacherplan():
 def test_add_course():
     start_time1 = time(8, 15)
     finish_time1 = time(10, 0)
-    course1 = Course('mako', 104, 's13',
+    course1 = Course(0, 'mako', 104, 's13',
                      start_time1, finish_time1, 'wednesday')
     start_time2 = time(10, 15)
     finish_time2 = time(12, 0)
-    course2 = Course('mako', 104, 's13',
+    course2 = Course(1, 'mako', 104, 's13',
                      start_time2, finish_time2, 'wednesday')
     teacherplan1 = TeacherPlan('Jan', 'Ban', [104], [])
     teacherplan1.add_course(course1)
@@ -60,24 +61,24 @@ def test_course_collision():
     start_time3 = time(10, 0)
     finish_time3 = time(11, 45)
 
-    course1 = Course('mako', 104, 's13',
+    course0 = Course(0, 'mako', 104, 's13',
                      start_time1, finish_time1, 'wednesday')
-    course2 = Course('mako', 104, 's14',
+    course1 = Course(1, 'mako', 104, 's14',
                      start_time2, finish_time2, 'wednesday')
-    course3 = Course('anma', 108, 's13',
+    course2 = Course(2, 'anma', 108, 's13',
                      start_time1, finish_time1, 'wednesday')
-    course4 = Course('anma', 107, 's13',
+    course3 = Course(3, 'anma', 107, 's13',
                      start_time3, finish_time3, 'wednesday')
 
     teacherplan1 = TeacherPlan('Jan', 'Ban', [104], [])
     teacherplan2 = TeacherPlan('San', 'Tan', [108], [])
 
-    teacherplan1.add_course(course1)
+    teacherplan1.add_course(course0)
     courselist = teacherplan1.get_courselist()
     assert courselist[0].get_name() == 'mako'
     with pytest.raises(GroupCollisionError):
-        teacherplan1.add_course(course2)
+        teacherplan1.add_course(course1)
+    with pytest.raises(RoomCollisionError):
+        teacherplan2.add_course(course2)
     with pytest.raises(RoomCollisionError):
         teacherplan2.add_course(course3)
-    with pytest.raises(RoomCollisionError):
-        teacherplan2.add_course(course4)

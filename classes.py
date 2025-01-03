@@ -10,13 +10,17 @@ class GroupCollisionError(Exception):
 
 
 class Course:
-    def __init__(self, name, group, room, start_time, finish_time, day):
+    def __init__(self, id, name, group, room, start_time, finish_time, day):
+        self._id = id
         self._name = name
         self._group = group
         self._room = room
         self._start_time = start_time
         self._finish_time = finish_time
         self._day = day
+
+    def get_id(self):
+        return self._id
 
     def get_name(self):
         return self._name
