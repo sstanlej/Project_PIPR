@@ -1,10 +1,3 @@
-from classes import (Course, TeacherPlan,
-                     GroupCollisionError, RoomCollisionError,
-                     WrongCourseIdError)
-
-from datetime import time
-import pytest
-from data_lists import allcourselist, allteacherlist
 import os
 
 
@@ -21,10 +14,11 @@ def print_main_menu():
     print(' that will help you plan courses for multiple groups.\n')
     print('What do you want to do?\n')
     print('1. See the list of all teachers and their plans')
+    print('2. Sign in as a new teacher')
+    print('3. Log in as a teacher')
+    print('4. Save current data into a file')
+    print('5. Load data from a file')
     print('============================================================')
-    choice = input()
+    choice = input(">> ")
     if choice == "1":
         print_list_of_teachers()
-
-
-print_main_menu()
