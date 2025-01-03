@@ -1,4 +1,4 @@
-from all_course_list import allcourselist
+from data_lists import allcourselist
 
 
 class RoomCollisionError(Exception):

@@ -4,7 +4,7 @@ from classes import (Course, TeacherPlan,
 
 from datetime import time
 import pytest
-from all_course_list import allcourselist
+from data_lists import allcourselist
 
 
 def test_create_course():

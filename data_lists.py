@@ -1,1 +1,2 @@
 allcourselist = []
+allteacherlist = []
