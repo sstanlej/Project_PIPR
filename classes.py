@@ -1,4 +1,4 @@
-from data_lists import allcourselist
+from data_lists import allcourselist, allteacherlist
 
 
 class RoomCollisionError(Exception):
@@ -55,6 +55,7 @@ class TeacherPlan:
         if not courselist:
             self._courselist = []
         self._courselist = courselist
+        allteacherlist.append(self)
 
     def get_courselist(self):
         return self._courselist

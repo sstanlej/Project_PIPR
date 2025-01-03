@@ -4,7 +4,7 @@ from classes import (Course, TeacherPlan,
 
 from datetime import time
 import pytest
-from data_lists import allcourselist
+from data_lists import allcourselist, allteacherlist
 
 
 def test_create_course():
@@ -38,10 +38,12 @@ def test_create_teacherplan():
     courselist = teacherplan1.get_courselist()
     assert courselist[0].get_name() == 'mako'
     assert courselist[1].get_finish_time() == finish_time2
+    assert len(allteacherlist) == 1
 
 
 def test_add_course():
     allcourselist.clear()
+    allteacherlist.clear()
     start_time1 = time(8, 15)
     finish_time1 = time(10, 0)
     start_time2 = time(10, 15)
@@ -58,10 +60,12 @@ def test_add_course():
     teacherplan1.add_course(course2)
     courselist = teacherplan1.get_courselist()
     assert courselist[1].get_finish_time() == finish_time2
+    assert len(allteacherlist) == 1
 
 
 def test_remove_course():
     allcourselist.clear()
+    allteacherlist.clear()
     start_time1 = time(8, 15)
     finish_time1 = time(10, 0)
     start_time2 = time(10, 15)
@@ -82,10 +86,12 @@ def test_remove_course():
     assert len(courselist) == 1
     with pytest.raises(WrongCourseIdError):
         teacherplan1.remove_course(0)
+    assert len(allteacherlist) == 1
 
 
 def test_course_collision():
     allcourselist.clear()
+    allteacherlist.clear()
     start_time1 = time(8, 15)
     finish_time1 = time(10, 0)
     start_time2 = time(9, 15)
@@ -116,3 +122,4 @@ def test_course_collision():
         teacherplan2.add_course(course2)
     with pytest.raises(RoomCollisionError):
         teacherplan2.add_course(course3)
+    assert len(allteacherlist) == 2
