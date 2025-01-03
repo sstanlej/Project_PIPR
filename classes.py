@@ -9,6 +9,10 @@ class GroupCollisionError(Exception):
     pass
 
 
+class WrongCourseIdError(Exception):
+    pass
+
+
 class Course:
     def __init__(self, id, name, group, room, start_time, finish_time, day):
         self._id = id
@@ -113,3 +117,11 @@ class TeacherPlan:
             raise GroupCollisionError("Group is not availavle at the time")
         self._courselist.append(newcourse)
         allcourselist.append(newcourse)
+
+    def remove_course(self, courseid):
+        for course in self._courselist:
+            if course.get_id() == courseid:
+                self._courselist.remove(course)
+                allcourselist.remove(course)
+                return 0
+        raise WrongCourseIdError("There is no course with specified ID")
