@@ -18,11 +18,14 @@ class Course:
         self._finish_time = finish_time
         self._day = day
 
+    def get_name(self):
+        return self._name
+
     def get_group(self):
         return self._group
 
     def get_room(self):
-        return self._group
+        return self._room
 
     def get_start_time(self):
         return self._start_time
