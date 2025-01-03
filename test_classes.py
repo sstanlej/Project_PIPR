@@ -57,6 +57,8 @@ def test_course_collision():
     finish_time1 = time(10, 0)
     start_time2 = time(9, 15)
     finish_time2 = time(11, 0)
+    start_time3 = time(10, 0)
+    finish_time3 = time(11, 45)
 
     course1 = Course('mako', 104, 's13',
                      start_time1, finish_time1, 'wednesday')
@@ -64,13 +66,18 @@ def test_course_collision():
                      start_time2, finish_time2, 'wednesday')
     course3 = Course('anma', 108, 's13',
                      start_time1, finish_time1, 'wednesday')
+    course4 = Course('anma', 107, 's13',
+                     start_time3, finish_time3, 'wednesday')
 
     teacherplan1 = TeacherPlan('Jan', 'Ban', [104], [])
+    teacherplan2 = TeacherPlan('San', 'Tan', [108], [])
+
     teacherplan1.add_course(course1)
     courselist = teacherplan1.get_courselist()
     assert courselist[0].get_name() == 'mako'
     with pytest.raises(GroupCollisionError):
         teacherplan1.add_course(course2)
-    teacherplan2 = TeacherPlan('San', 'Tan', [108], [])
     with pytest.raises(RoomCollisionError):
         teacherplan2.add_course(course3)
+    with pytest.raises(RoomCollisionError):
+        teacherplan2.add_course(course4)
