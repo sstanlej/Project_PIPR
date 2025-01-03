@@ -68,6 +68,14 @@ class TeacherPlan:
     def get_name(self):
         return self._name
 
+    def update_allcourselist(self):
+        for course in allcourselist:
+            if course in self._courselist:
+                allcourselist.remove(course)
+        for course in self._courselist:
+            if course not in allcourselist:
+                allcourselist.append(course)
+
     def check_room_availability(self, nroom, nday, nstart_time, nfinish_time):
         for course in allcourselist:
             day = course.get_day()

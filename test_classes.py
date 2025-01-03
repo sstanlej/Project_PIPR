@@ -24,13 +24,15 @@ def test_create_course():
 def test_create_teacherplan():
     start_time1 = time(8, 15)
     finish_time1 = time(10, 0)
-    course1 = Course(0, 'mako', 104, 's13',
-                     start_time1, finish_time1, 'wednesday')
     start_time2 = time(10, 15)
     finish_time2 = time(12, 0)
+
+    course1 = Course(0, 'mako', 104, 's13',
+                     start_time1, finish_time1, 'wednesday')
     course2 = Course(1, 'mako', 104, 's13',
                      start_time2, finish_time2, 'wednesday')
     teacherplan1 = TeacherPlan('Jan', 'Ban', [104], [course1, course2])
+    teacherplan1.update_allcourselist()
     assert teacherplan1.get_name() == 'Jan'
     assert teacherplan1.get_surname() == 'Ban'
     courselist = teacherplan1.get_courselist()
@@ -39,12 +41,14 @@ def test_create_teacherplan():
 
 
 def test_add_course():
+    allcourselist.clear()
     start_time1 = time(8, 15)
     finish_time1 = time(10, 0)
-    course1 = Course(0, 'mako', 104, 's13',
-                     start_time1, finish_time1, 'wednesday')
     start_time2 = time(10, 15)
     finish_time2 = time(12, 0)
+
+    course1 = Course(0, 'mako', 104, 's13',
+                     start_time1, finish_time1, 'wednesday')
     course2 = Course(1, 'mako', 104, 's13',
                      start_time2, finish_time2, 'wednesday')
     teacherplan1 = TeacherPlan('Jan', 'Ban', [104], [])
@@ -57,6 +61,7 @@ def test_add_course():
 
 
 def test_remove_course():
+    allcourselist.clear()
     start_time1 = time(8, 15)
     finish_time1 = time(10, 0)
     start_time2 = time(10, 15)
@@ -68,6 +73,7 @@ def test_remove_course():
                      start_time2, finish_time2, 'wednesday')
 
     teacherplan1 = TeacherPlan('Jan', 'Ban', [104], [])
+    teacherplan1.update_allcourselist()
     teacherplan1.add_course(course0)
     teacherplan1.add_course(course1)
     courselist = teacherplan1.get_courselist()
@@ -79,6 +85,7 @@ def test_remove_course():
 
 
 def test_course_collision():
+    allcourselist.clear()
     start_time1 = time(8, 15)
     finish_time1 = time(10, 0)
     start_time2 = time(9, 15)
@@ -97,6 +104,8 @@ def test_course_collision():
 
     teacherplan1 = TeacherPlan('Jan', 'Ban', [104], [])
     teacherplan2 = TeacherPlan('San', 'Tan', [108], [])
+    teacherplan1.update_allcourselist()
+    teacherplan2.update_allcourselist()
 
     teacherplan1.add_course(course0)
     courselist = teacherplan1.get_courselist()
