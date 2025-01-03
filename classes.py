@@ -48,6 +48,18 @@ class TeacherPlan:
             self._courselist = []
         self._courselist = courselist
 
+    def get_courselist(self):
+        return self._courselist
+
+    def get_grouplist(self):
+        return self._grouplist
+
+    def get_surname(self):
+        return self._surname
+
+    def get_name(self):
+        return self._name
+
     def check_room_availability(self, nroom, nday, nstart_time, nfinish_time):
         for course in allcourselist:
             day = course.get_day()
