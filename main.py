@@ -1,6 +1,5 @@
 from interface import (print_main_menu,
                        clear)
-from data_files import data
 
 
 def main():
