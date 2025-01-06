@@ -1,22 +1,6 @@
 import os
 from data_files import data
-from datetime import time
-from classes import TeacherPlan, Course
-
-
-def add_template_teachers():
-
-    course1 = Course(0, 'mako', 102, 's14', time(7, 15), time(9, 0), 'mon')
-    course2 = Course(1, 'anma', 104, 's15', time(11, 15), time(12, 0), 'fri')
-    course3 = Course(2, 'mako', 103, 's14', time(9, 15), time(11, 0), 'mon')
-    course4 = Course(3, 'mako', 105, 's14', time(12, 15), time(14, 0), 'wed')
-
-    teacher1 = TeacherPlan('t1', 'Stan', 'Ban', [course1, course2,
-                                                 course3, course4])
-    teacher2 = TeacherPlan('t2', 'John', 'Pork', [])
-
-    data.database0.add_teacher(teacher1)
-    data.database0.add_teacher(teacher2)
+from classes import TeacherPlan
 
 
 def clear():
@@ -30,27 +14,34 @@ def print_teacher_info(printplan):
         tname = teacher.get_name()
         tsurname = teacher.get_surname()
         tid = teacher.get_id()
-        print(f'{x}. {tname} {tsurname} (id: {tid})')
+        line = f'{x}. {tname} {tsurname} (id: {tid})'
+        printbox(line, 112)
         if printplan == 1:
             if teacher.get_courselist() == []:
-                print('This teacher has no courses planned.\n\n')
+                printbox('This teacher has no courses planned.', 112)
+                printbox(' ', 112)
+                printbox(' ', 112)
             else:
-                print('Teacher plan:\n')
+                printbox('Teacher plan:', 112)
                 teacher.print_plan()
-                print('\n\n')
+                printbox(' ', 112)
+                printbox(' ', 112)
         x += 1
 
 
 def option1():
     clear()
-    print('='*60)
     teacherlist = data.database0.get_allteacherslist()
     if teacherlist == []:
+        print('='*60)
         no_teachers()
     else:
-        print('The list of all teachers:\n')
+        print('='*114)
+        printbox('The list of all teachers:', 112)
+        print('='*114)
+        printbox(' ', 112)
         print_teacher_info(1)
-        print('='*60)
+        print('='*114)
         input_back_to_menu()
 
 
@@ -60,20 +51,18 @@ def option2():
     print('Welcome to teacher creator.\n')
     print('Please specify unique teacher ID:')
 
-    teacherlist = data.database0.get_allteacherslist()
-    newtid = input('>> ')
-    for teacher in teacherlist:
-        teacherid = teacher.get_id()
-        while newtid == teacherid:
-            print('Teacher with specified ID already exists, please try again.')
-            newtid = input('>> ')
+    newtid = input_newid('Teacher')
 
     print(f'Your chosen ID: {newtid}\n')
     print('Please specify teacher\'s name:')
     newtname = input('>> ')
+    while not newtname:
+        newtname = input('>> ')
     print(f'Your chosen name: {newtname}\n')
     print('Please specify teacher\'s surname:')
     newtsurname = input('>> ')
+    while not newtsurname:
+        newtsurname = input('>> ')
     print(f'Your chosen surname: {newtsurname}\n')
     newteacher = TeacherPlan(newtid, newtname,
                              newtsurname, [])
@@ -85,41 +74,212 @@ def option2():
 
 def option3():
     clear()
+    print('='*60)
     teacherlist = data.database0.get_allteacherslist()
     if teacherlist == []:
         print('There are no teachers in the database.')
-        print('='*60)
         input_back_to_menu()
     else:
         print('Please type the ID of the teacher you\'d like to remove.')
+        remflag = 0
         print_teacher_info(0)
         print('\n')
+        print('To go back, type 0')
+        print('='*60)
         remtid = input('>> ')
-        for teacher in teacherlist:
-            tid = teacher.get_id()
-            if remtid == tid:
-                tname = teacher.get_name()
-                tsurname = teacher.get_surname()
-                data.database0.remove_teacher(remtid)
-                print(f'Teacher {tname} {tsurname} successfully removed.\n')
+        if remtid == '0':
+            print_main_menu()
+        else:
+            for teacher in teacherlist:
+                tid = teacher.get_id()
+                if remtid == tid:
+                    tname = teacher.get_name()
+                    tsurname = teacher.get_surname()
+                    data.database0.remove_teacher(remtid)
+                    print(f'Teacher {tname} {tsurname} successfully removed.')
+                    print('\n')
+                    input_back_to_menu()
+                    remflag = 1
+                    break
+            if remflag == 0:
+                print('There is no teacher with specified ID\n')
+                print('='*60)
                 input_back_to_menu()
-                break
-        print('There is no teacher with specified ID\n')
-        input_back_to_menu()
 
 
 def option4():
     clear()
-    print('='*60)
+    print('='*114)
     teacherlist = data.database0.get_allteacherslist()
     if teacherlist == []:
         no_teachers()
     else:
-        print('Choose a teacher you\'d like to log in as from the list\n')
-        allcourseslist = data.database0.get_allcourseslist()
-        print(allcourseslist)
+        printbox('Please type the ID of the teacher you\'d like to log in as',
+                 112)
+        logflag = 0
+        print_teacher_info(0)
+        printbox(' ', 112)
+        printbox('To go back, type 0', 112)
+        print('='*114)
+        logid = input('>> ')
+        if logid == '0':
+            print_main_menu()
+        else:
+            for teacher in teacherlist:
+                tid = teacher.get_id()
+                if logid == tid:
+                    logflag = 1
+                    logged_in(teacher)
+        if logflag == 0:
+            print('There is no teacher with specified ID, cannot log in\n')
+            print('='*60)
+            input_back_to_menu()
+
+
+def printbox(text, chars):
+    print(f'|{text:^{chars}}|')
+
+
+def logged_in(teacher):
+    tname = teacher.get_name()
+    tsurename = teacher.get_surname()
+    tid = teacher.get_id()
+    clear()
+    print('='*60)
+    printbox(f'You are logged in as {tname} {tsurename} (id: {tid})', 58)
+    print('='*60)
+    printbox('What would you like to do?', 58)
+    printbox(' ', 58)
+    printbox('1. See your plan', 58)
+    printbox('2. Add a course', 58)
+    printbox('0. Go back to menu', 58)
+    print('='*60)
+    input_logged_in(teacher)
+
+
+def input_logged_in(teacher):
+    choice = input('>> ')
+    if choice == '1':
+        clear()
+        teacher.print_plan()
+        printbox('To go back, type 0', 58)
         print('='*60)
-        input_back_to_menu()
+        while choice != '0':
+            choice = input('>> ')
+        logged_in(teacher)
+    elif choice == '2':
+        course_creator(teacher)
+    elif choice == '0':
+        print_main_menu()
+
+
+def course_creator(teacher):
+    clear()
+    print('='*60)
+    printbox('Welcome to course creator.', 58)
+    print('='*60)
+    printbox(' ', 58)
+    printbox('Please specify unique course id:', 58)
+    printbox('(Can not be "0", must be shorter than 20 characters)', 58)
+    printbox(' ', 58)
+    print('='*60)
+
+    newcid = input_newid('Course')
+    clear()
+    print('='*60)
+    printbox(f'Course\'s chosen ID: {newcid}', 58)
+    print('='*60)
+    printbox(' ', 58)
+    printbox('Please specify course display name:', 58)
+    printbox('(max 8 characters long)', 58)
+    printbox(' ', 58)
+    print('='*60)
+
+    newcdname = input('>> ')
+    while len(newcdname) > 8:
+        print('Course display name too long, try again.')
+        newcdname = input('>> ')
+    clear()
+    print('='*60)
+    printbox(f'Course\'s chosen ID: {newcid}', 58)
+    printbox(f'Course\'s chosen display name: {newcdname}', 58)
+    print('='*60)
+    printbox(' ', 58)
+    printbox('Please specify course\'s group number:', 58)
+    printbox('(max 3 digits long, must be an integer)', 58)
+    printbox(' ', 58)
+    print('='*60)
+
+    newcgroup = input_newnumber('Group')
+    clear()
+    teacher.print_plan()
+    print('='*60)
+    printbox(f'Course\'s chosen ID: {newcid}', 58)
+    printbox(f'Course\'s chosen display name: {newcdname}', 58)
+    printbox(f'Course\'s chosen group number: {newcgroup}', 58)
+    print('='*60)
+    printbox(' ', 58)
+    printbox('Please specify course\'s room number:', 58)
+    printbox('(max 3 digits long, must be an integer)', 58)
+    printbox(' ', 58)
+    print('='*60)
+
+    newcroom = input_newnumber('Room')
+    clear()
+    teacher.print_plan()
+    print('='*60)
+    printbox(f'Course\'s chosen ID: {newcid}', 58)
+    printbox(f'Course\'s chosen display name: {newcdname}', 58)
+    printbox(f'Course\'s chosen group number: {newcgroup}', 58)
+    printbox(f'Course\'s chosen room number: {newcroom}', 58)
+    print('='*60)
+    printbox(' ', 58)
+    printbox('Specify course\'s start and finish time:', 58)
+    printbox('(Format: HH:MM HH:MM e.g. 8:15 10:00)', 58)
+    printbox('(Important note: minutes must be a multiple of 15)', 58)
+    printbox(' ', 58)
+    print('='*60)
+
+
+def input_newnumber(type):
+    value = input('>> ')
+    if len(value) > 3:
+        print(f'{type} number longer than 3 digits, try again.')
+        value = input_newnumber(type)
+    else:
+        try:
+            newnumber = int(value)
+            return newnumber
+        except ValueError:
+            print(f'{type} number is not a number, try again')
+            newnumber = input_newnumber(type)
+            return newnumber
+    return int(value)
+
+
+def input_newid(type):
+    if type == 'Course':
+        thelist = data.database0.get_allcourseslist()
+    elif type == 'Teacher':
+        thelist = data.database0.get_allteacherslist()
+    else:
+        print('Wrong specified type')
+    newcid = input('>> ')
+    if not newcid:
+        newcid = input_newid(type)
+    elif newcid == '0':
+        print(f'{type} ID cannot be "0", please choose a different ID.')
+        newcid = input_newid(type)
+    elif len(newcid) > 20:
+        print(f'{type} ID too long, choose a different ID.')
+        newcid = input_newid(type)
+    else:
+        for item in thelist:
+            cid = item.get_id()
+            if cid == newcid:
+                print(f'{type} with this ID already exists, please try again.')
+                newcid = input_newid(type)
+    return newcid
 
 
 def option5():
@@ -197,16 +357,22 @@ def input_and_go_menu():
 
 def print_main_menu():
     clear()
+    print('hejka')
+    clear()
     print('='*60)
-    print('Welcome to Course Planner app,')
-    print(' that will help you plan courses for multiple groups.\n')
-    print('What do you want to do?\n')
-    print('1. See the list of all teachers and their plans')
-    print('2. Add a new teacher')
-    print('3. Remove a teacher from database')
-    print('4. Log in as a teacher')
-    print('5. Save current data into a file')
-    print('6. Load data from a file')
-    print('0. Exit')
+    printbox('Welcome to Course Planner app,', 58)
+    printbox(' that will help you plan courses for multiple groups.', 58)
+    print('='*60)
+    printbox('What would you like to do?', 58)
+    printbox(' ', 58)
+    printbox('1. See the list of all teachers and their plans', 58)
+    printbox('2. Add a new teacher', 58)
+    printbox('3. Remove a teacher from database', 58)
+    printbox('4. Log in as a teacher', 58)
+    printbox('5. Save current data into a file', 58)
+    printbox('6. Load data from a file', 58)
+    printbox('0. Exit', 58)
+    printbox(' ', 58)
+    printbox('Input a number 0-6:', 58)
     print('='*60)
     input_and_go_menu()
