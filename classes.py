@@ -18,6 +18,10 @@ class WrongDayError(Exception):
     pass
 
 
+class TeacherCollisionError(Exception):
+    pass
+
+
 class Database():
     def __init__(self, allcourseslist, allteacherslist):
         if not allcourseslist:
@@ -130,12 +134,28 @@ class TeacherPlan:
     def get_name(self):
         return self._name
 
+    def check_self_availability(self, stime, ftime, day):
+        for course in self._courselist:
+            cstime = course.get_start_time()
+            cftime = course.get_finish_time()
+            cday = course.get_day()
+            if day == cday:
+                if stime > cftime:
+                    pass
+                elif ftime < cstime:
+                    pass
+                else:
+                    return False
+        return True
+
     def add_course(self, newcourse, database):
         nday = newcourse.get_day()
         nstart_time = newcourse.get_start_time()
         nfinish_time = newcourse.get_finish_time()
         nroom = newcourse.get_room()
         ngroup = newcourse.get_group()
+        if not self.check_self_availability(nstart_time, nfinish_time, nday):
+            raise TeacherCollisionError("Teacher is not available at the time")
 
         if not database.check_room_availability(nroom, nday,
                                                 nstart_time, nfinish_time):
@@ -154,50 +174,43 @@ class TeacherPlan:
                 return 0
         raise WrongCourseIdError("There is no course with specified ID")
 
-    def print_lineday(self, day, checktime, last_cid, c):
+    def print_lineday(self, day, checktime, c):
         for course in self._courselist:
             cday = course.get_day()
             cstime = course.get_start_time()
             cftime = course.get_finish_time()
-            cid = course.get_id()
             cname = course.get_name()
             cgroup = course.get_group()
+            croom = course.get_room()
             if cday == day:
                 if (checktime >= cstime and checktime < cftime):
-                    pname = f'{cname}{cgroup}'
-                    if last_cid == cid:
-                        line = Fore.YELLOW + f'{pname:^18}' + Fore.RESET + c
-                        last_cid = cid
-                        break
-                    else:
-                        line = Fore.RED + f'{pname:^18}' + Fore.RESET + c
-                        last_cid = cid
-                        break
+                    pname = f'{cname}{cgroup} {croom}'
+                    line = Fore.YELLOW + f'{pname:^20}' + Fore.RESET + c
+                    break
                 else:
-                    line = Fore.RESET + ' '*18 + c
+                    line = Fore.RESET + ' '*20 + c
             else:
-                line = Fore.RESET + ' '*18 + c
-        return line, last_cid
+                line = Fore.RESET + ' '*20 + c
+        return line
 
     def print_plan(self):
         days = {
-            'mon': '|     MONDAY       ',
-            'tue': '|     TUESDAY      ',
-            'wed': '|    WEDNESDAY     ',
-            'thu': '|    THURSDAY      ',
-            'fri': '|     FRIDAY       |'
+            'mon': '|      MONDAY        ',
+            'tue': '|      TUESDAY       ',
+            'wed': '|     WEDNESDAY      ',
+            'thu': '|     THURSDAY       ',
+            'fri': '|      FRIDAY        |'
         }
-        print('='*104)
+        print('='*114)
         line = '|       '
         for day in days:
             line += days[day]
         print(line)
-        print('='*104)
+        print('='*114)
 
         hour = 7
         minute = 0
         dz = '00'
-        last_cid = -1
         for i in range(0, 65):
             checktime = time(hour, minute)
             hr = f'{checktime.hour}:{checktime.minute if minute != 0 else dz}'
@@ -211,11 +224,11 @@ class TeacherPlan:
                 c = '~'
             line = ''
             for day in days:
-                s, last_cid = self.print_lineday(day, checktime, last_cid, c)
+                s = self.print_lineday(day, checktime, c)
                 line += s
             print(f'{c}{hr}{c}{line} ')
             minute += 15
             if minute == 60:
                 minute = 0
                 hour += 1
-        print('='*104)
+        print('='*114)
