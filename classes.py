@@ -1,3 +1,7 @@
+from colorama import Fore, Style
+from datetime import time
+
+
 class RoomCollisionError(Exception):
     pass
 
@@ -145,3 +149,57 @@ class TeacherPlan:
                 database.remove_course(course)
                 return 0
         raise WrongCourseIdError("There is no course with specified ID")
+
+    def print_plan(self, day):
+        if day == 'mon':
+            printday = '=     MONDAY       ='
+        elif day == 'tue':
+            printday = '=     TUESDAY      ='
+        elif day == 'wed':
+            printday = '=    WEDNESDAY     ='
+        elif day == 'thu':
+            printday = '=    THURSDAY      ='
+        elif day == 'fri':
+            printday = '=     FRIDAY       ='
+        else:
+            printday = 'wrongday'
+        print('='*20)
+        print(printday)
+        print('='*20)
+        hour = 7
+        minute = 0
+        dz = '00'
+        last_cid = -1
+        for i in range(0, 64):
+            checktime = time(hour, minute)
+            ph = f'{checktime.hour}:{checktime.minute if minute != 0 else dz}'
+            if len(ph) == 4:
+                ph = '  ' + ph
+            else:
+                ph = ' ' + ph
+            for course in self._courselist:
+                cday = course.get_day()
+                cstime = course.get_start_time()
+                cftime = course.get_finish_time()
+                cid = course.get_id()
+                cname = course.get_name()
+                cgroup = course.get_group()
+                if cday == day:
+                    if (checktime >= cstime and checktime < cftime):
+                        if last_cid == cid:
+                            line = Fore.RED + f'{ph} {cname}{cgroup}'
+                            last_cid = cid
+                            break
+                        else:
+                            line = Fore.YELLOW + f'{ph} {cname}{cgroup}'
+                            last_cid = cid
+                            break
+                    else:
+                        line = Fore.RESET + ph
+                else:
+                    line = Fore.RESET + ph
+            print(line)
+            minute += 15
+            if minute == 60:
+                minute = 0
+                hour += 1
