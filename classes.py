@@ -106,9 +106,10 @@ class Database():
 
 
 class Course:
-    def __init__(self, id, name, group, room, start_time, finish_time, day):
+    def __init__(self, id, displayname, group,
+                 room, start_time, finish_time, day):
         self._id = id
-        self._name = name
+        self._displayname = displayname
         self._group = group
         self._room = room
         self._start_time = start_time
@@ -118,8 +119,8 @@ class Course:
     def get_id(self):
         return self._id
 
-    def get_name(self):
-        return self._name
+    def get_displayname(self):
+        return self._displayname
 
     def get_group(self):
         return self._group
@@ -199,16 +200,18 @@ class TeacherPlan:
         raise WrongCourseIdError("There is no course with specified ID")
 
     def print_lineday(self, day, checktime, c):
+        if self._courselist == []:
+            return ' '*20 + c
         for course in self._courselist:
             cday = course.get_day()
             cstime = course.get_start_time()
             cftime = course.get_finish_time()
-            cname = course.get_name()
+            cdname = course.get_displayname()
             cgroup = course.get_group()
             croom = course.get_room()
             if cday == day:
                 if (checktime >= cstime and checktime < cftime):
-                    pname = f'{cname}{cgroup} {croom}'
+                    pname = f'{cdname} g{cgroup} s{croom}'
                     line = Fore.YELLOW + f'{pname:^20}' + Fore.RESET + c
                     break
                 else:
