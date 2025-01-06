@@ -22,6 +22,10 @@ class TeacherCollisionError(Exception):
     pass
 
 
+class WrongTeacherIdError(Exception):
+    pass
+
+
 class Database():
     def __init__(self, allcourseslist, allteacherslist):
         if not allcourseslist:
@@ -36,6 +40,14 @@ class Database():
 
     def add_course(self, newcourse):
         self._allcourseslist.append(newcourse)
+
+    def remove_teacher(self, oldteacherID):
+        for teacher in self._allteacherslist:
+            teacherID = teacher.get_id()
+            if oldteacherID == teacherID:
+                self._allteacherslist.remove(teacher)
+                return 0
+        raise WrongTeacherIdError("No teacher with specified ID in database.")
 
     def remove_course(self, oldcourse):
         self._allcourseslist.remove(oldcourse)
@@ -112,7 +124,8 @@ class Course:
 
 
 class TeacherPlan:
-    def __init__(self, name, surname, grouplist, courselist):
+    def __init__(self, id, name, surname, grouplist, courselist):
+        self._id = id
         self._name = name
         self._surname = surname
         if not grouplist:
@@ -121,6 +134,9 @@ class TeacherPlan:
         if not courselist:
             self._courselist = []
         self._courselist = courselist
+
+    def get_id(self):
+        return self._id
 
     def get_courselist(self):
         return self._courselist
