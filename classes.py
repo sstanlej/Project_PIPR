@@ -6,6 +6,10 @@ class RoomCollisionError(Exception):
     pass
 
 
+class NotUniqueTeacherIdError(Exception):
+    pass
+
+
 class GroupCollisionError(Exception):
     pass
 
@@ -34,9 +38,14 @@ class Database():
         if not allteacherslist:
             allteacherslist = []
         self._allteacherslist = allteacherslist
+        for teacher in self._allteacherslist:
+            for course in teacher.get_courselist():
+                self._allcourseslist.append(course)
 
     def add_teacher(self, newteacher):
         self._allteacherslist.append(newteacher)
+        for course in newteacher.get_courselist():
+            self._allcourseslist.append(course)
 
     def add_course(self, newcourse):
         self._allcourseslist.append(newcourse)
@@ -45,6 +54,8 @@ class Database():
         for teacher in self._allteacherslist:
             teacherID = teacher.get_id()
             if oldteacherID == teacherID:
+                for course in teacher.get_courselist():
+                    self.remove_course(course)
                 self._allteacherslist.remove(teacher)
                 return 0
         raise WrongTeacherIdError("No teacher with specified ID in database.")
@@ -54,6 +65,9 @@ class Database():
 
     def get_allteacherslist(self):
         return self._allteacherslist
+
+    def get_allcourseslist(self):
+        return self._allcourseslist
 
     def check_room_availability(self, nroom, nday, nstart_time, nfinish_time):
         for course in self._allcourseslist:
@@ -124,13 +138,10 @@ class Course:
 
 
 class TeacherPlan:
-    def __init__(self, id, name, surname, grouplist, courselist):
+    def __init__(self, id, name, surname, courselist):
         self._id = id
         self._name = name
         self._surname = surname
-        if not grouplist:
-            self._grouplist = []
-        self._grouplist = grouplist
         if not courselist:
             self._courselist = []
         self._courselist = courselist
@@ -140,9 +151,6 @@ class TeacherPlan:
 
     def get_courselist(self):
         return self._courselist
-
-    def get_grouplist(self):
-        return self._grouplist
 
     def get_surname(self):
         return self._surname
