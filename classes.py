@@ -69,6 +69,11 @@ class Database():
     def get_allcourseslist(self):
         return self._allcourseslist
 
+    def get_alldatalist(self):
+        teachers = self._allteacherslist
+        courses = self._allcourseslist
+        return [teachers, courses]
+
     def check_room_availability(self, nroom, nday, nstart_time, nfinish_time):
         for course in self._allcourseslist:
             day = course.get_day()
