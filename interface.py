@@ -1,10 +1,14 @@
 import os
 from data_files import data
-from classes import TeacherPlan
+from classes import (TeacherPlan, Course,
+                     GroupCollisionError,
+                     TeacherCollisionError,
+                     RoomCollisionError)
+from datetime import time
 
 
 def clear():
-    os.system('cls' if os.name == 'nt' else 'clear')
+    os.system('cls')
 
 
 def print_teacher_info(printplan):
@@ -48,44 +52,79 @@ def option1():
 def option2():
     clear()
     print('='*60)
-    print('Welcome to teacher creator.\n')
-    print('Please specify unique teacher ID:')
+    printbox('Welcome to teacher creator.', 58)
+    print('='*60)
+    printbox(' ', 58)
+    printbox('Please specify unique teacher id:', 58)
+    printbox('(Can not be "0", must be shorter than 20 characters)', 58)
+    printbox(' ', 58)
+    print('='*60)
 
     newtid = input_newid('Teacher')
 
-    print(f'Your chosen ID: {newtid}\n')
-    print('Please specify teacher\'s name:')
+    clear()
+    print('='*60)
+    printbox(f'Teacher\'s chosen ID: {newtid}', 58)
+    print('='*60)
+    printbox(' ', 58)
+    printbox('Please specify teacher\'s name:', 58)
+    printbox(' ', 58)
+    print('='*60)
+
     newtname = input('>> ')
     while not newtname:
         newtname = input('>> ')
-    print(f'Your chosen name: {newtname}\n')
-    print('Please specify teacher\'s surname:')
+
+    clear()
+    print('='*60)
+    printbox(f'Teacher\'s chosen ID: {newtid}', 58)
+    printbox(f'Teacher\'s chosen name: {newtname}', 58)
+    print('='*60)
+    printbox(' ', 58)
+    printbox('Please specify teacher\'s surname:', 58)
+    printbox(' ', 58)
+    print('='*60)
+
     newtsurname = input('>> ')
     while not newtsurname:
         newtsurname = input('>> ')
-    print(f'Your chosen surname: {newtsurname}\n')
+
+    clear()
+    print('='*60)
+    printbox(f'Teacher\'s chosen ID: {newtid}', 58)
+    printbox(f'Teacher\'s chosen name: {newtname}', 58)
+    printbox(f'Teacher\'s chosen surname: {newtsurname}', 58)
+    print('='*60)
+
     newteacher = TeacherPlan(newtid, newtname,
                              newtsurname, [])
     data.database0.add_teacher(newteacher)
-    print(f'Teacher {newtname} {newtsurname} succesfully created!\n')
+
+    printbox(' ', 58)
+    printbox(f'Teacher {newtname} {newtsurname} succesfully created!', 58)
+    printbox(' ', 58)
     print('='*60)
     input_back_to_menu()
 
 
 def option3():
     clear()
-    print('='*60)
     teacherlist = data.database0.get_allteacherslist()
     if teacherlist == []:
-        print('There are no teachers in the database.')
+        print('='*60)
+        printbox('There are no teachers in the database.', 58)
+        print('='*60)
         input_back_to_menu()
     else:
-        print('Please type the ID of the teacher you\'d like to remove.')
+        print('='*114)
+        printbox('Please type the ID of the teacher you\'d like to remove.',
+                 112)
+        print('='*114)
         remflag = 0
         print_teacher_info(0)
-        print('\n')
-        print('To go back, type 0')
-        print('='*60)
+        printbox(' ', 112)
+        printbox('To go back, type 0', 112)
+        print('='*114)
         remtid = input('>> ')
         if remtid == '0':
             print_main_menu()
@@ -152,6 +191,7 @@ def logged_in(teacher):
     printbox(' ', 58)
     printbox('1. See your plan', 58)
     printbox('2. Add a course', 58)
+    printbox('3. Remove a course', 58)
     printbox('0. Go back to menu', 58)
     print('='*60)
     input_logged_in(teacher)
@@ -162,15 +202,85 @@ def input_logged_in(teacher):
     if choice == '1':
         clear()
         teacher.print_plan()
-        printbox('To go back, type 0', 58)
-        print('='*60)
-        while choice != '0':
-            choice = input('>> ')
-        logged_in(teacher)
+        go_back_logged_in(teacher)
     elif choice == '2':
         course_creator(teacher)
+    elif choice == '3':
+        course_remover(teacher)
     elif choice == '0':
         print_main_menu()
+
+
+def course_remover(teacher):
+    clear()
+    courselist = teacher.get_courselist()
+    tname = teacher.get_name()
+    tsurname = teacher.get_surname()
+    if courselist == []:
+        print('='*60)
+        printbox(f'Teacher {tname} {tsurname} has no courses planned.', 58)
+        print('='*60)
+        go_back_logged_in(teacher)
+    else:
+        print('='*80)
+        printbox(f'The list of {tname} {tsurname}\'s courses:', 78)
+        print('='*80)
+        x = 1
+        for course in courselist:
+            cdname = course.get_displayname()
+            cid = course.get_id()
+            cgroup = course.get_group()
+            croom = course.get_room()
+            days = {
+                'mon': 'Monday',
+                'tue': 'Tuesday',
+                'wed': 'Wednesday',
+                'thu': 'Thursday',
+                'fri': 'Friday'
+            }
+            cday = days[course.get_day()]
+            cstime = course.get_start_time()
+            cftime = course.get_finish_time()
+            cshour, csminute = cstime.hour, cstime.minute
+            cfhour, cfminute = cftime.hour, cftime.minute
+            printbox(f'{x}. {cdname} (id: {cid})', 78)
+            printbox(f'Group: {cgroup}, Room: {croom}', 78)
+            printbox(f'Time: {cday} {cshour}:{csminute}-{cfhour}:{cfminute}',
+                     78)
+            printbox(' ', 78)
+            x += 1
+        printbox(' ', 78)
+        printbox('Type the ID of the course you\'d like to remove.', 78)
+        printbox('(To go back, type 0)', 78)
+        print('='*80)
+        remcid = input('>> ')
+        if remcid == '0':
+            logged_in(teacher)
+        else:
+            remflag = 0
+            for course in courselist:
+                cid = course.get_id()
+                if remcid == cid:
+                    remflag = 1
+                    teacher.remove_course(cid, data.database0)
+                    cdname = course.get_displayname()
+                    cid = course.get_id()
+                    print('='*60)
+                    printbox(f'Course {cdname} (id: {cid}) removed.', 58)
+                    go_back_logged_in(teacher)
+            if remflag == 0:
+                print('='*60)
+                printbox('There is no course with specified ID.', 58)
+                go_back_logged_in(teacher)
+
+
+def go_back_logged_in(teacher):
+    printbox('To go back, type 0', 58)
+    print('='*60)
+    choice = input('>> ')
+    while choice != '0':
+        choice = input('>> ')
+    logged_in(teacher)
 
 
 def course_creator(teacher):
@@ -239,6 +349,125 @@ def course_creator(teacher):
     printbox('(Important note: minutes must be a multiple of 15)', 58)
     printbox(' ', 58)
     print('='*60)
+
+    newcstart_time, newcfinish_time = input_newtime()
+    shour, sminute = newcstart_time.hour, newcstart_time.minute
+    fhour, fminute = newcfinish_time.hour, newcfinish_time.minute
+
+    clear()
+    teacher.print_plan()
+    print('='*60)
+    printbox(f'Course\'s chosen ID: {newcid}', 58)
+    printbox(f'Course\'s chosen display name: {newcdname}', 58)
+    printbox(f'Course\'s chosen group number: {newcgroup}', 58)
+    printbox(f'Course\'s chosen room number: {newcroom}', 58)
+    printbox(f'Start time: {shour}:{sminute}', 58)
+    printbox(f'Finish time: {fhour}:{fminute}', 58)
+    print('='*60)
+    printbox(' ', 58)
+    printbox('Specify course\'s day:', 58)
+    printbox('(Type one of the following:)', 58)
+    printbox('(mon, tue, wed, thu, fri)', 58)
+    printbox(' ', 58)
+    print('='*60)
+
+    newcday = input('>> ')
+    while newcday not in ('mon', 'tue', 'wed', 'thu', 'fri'):
+        print('Wrong specified day, try again.')
+        newcday = input('>> ')
+
+    newcourse = Course(newcid, newcdname, newcgroup, newcroom,
+                       newcstart_time, newcfinish_time, newcday)
+
+    try:
+        teacher.add_course(newcourse, data.database0)
+        clear()
+        teacher.print_plan()
+        print('='*60)
+        printbox(f'Course\'s chosen ID: {newcid}', 58)
+        printbox(f'Course\'s chosen display name: {newcdname}', 58)
+        printbox(f'Course\'s chosen group number: {newcgroup}', 58)
+        printbox(f'Course\'s chosen room number: {newcroom}', 58)
+        printbox(f'Start time: {shour}:{sminute}', 58)
+        printbox(f'Finish time: {fhour}:{fminute}', 58)
+        printbox(f'Course\'s day: {newcday}', 58)
+        print('='*60)
+        printbox('Course successfully added!', 58)
+        print('='*60)
+        go_back_logged_in(teacher)
+    except GroupCollisionError:
+        printbox('ERROR:', 58)
+        printbox(f'Group {newcgroup} is busy at specified time.', 58)
+        printbox('Course has not been added.', 58)
+        print('='*60)
+        go_back_logged_in(teacher)
+    except TeacherCollisionError:
+        printbox('ERROR:', 58)
+        tname = teacher.get_name()
+        tsurname = teacher.get_surname()
+        printbox(f'Teacher {tname} {tsurname} is busy at specified time.', 58)
+        printbox('Course has not been added.', 58)
+        print('='*60)
+        go_back_logged_in(teacher)
+    except RoomCollisionError:
+        printbox('ERROR:', 58)
+        printbox(f'Room {newcroom} is occupied at specified time.', 58)
+        printbox('Course has not been added.', 58)
+        print('='*60)
+        go_back_logged_in(teacher)
+
+
+def input_newtime():
+    value = input('>> ')
+    try:
+        stime, ftime = value.split()
+    except ValueError:
+        print('No space between start and finish time, try again.')
+        start_time, finish_time = input_newtime()
+        return start_time, finish_time
+
+    try:
+        shour, sminute = stime.split(':')
+        fhour, fminute = ftime.split(':')
+    except ValueError:
+        print('Incorrect time format, try again.')
+        start_time, finish_time = input_newtime()
+        return start_time, finish_time
+
+    try:
+        shour = int(shour)
+        sminute = int(sminute)
+        fhour = int(fhour)
+        fminute = int(fminute)
+    except ValueError:
+        print('Incorrect time format, try again.')
+        start_time, finish_time = input_newtime()
+        return start_time, finish_time
+
+    if not (sminute % 15 == 0 and fminute % 15 == 0):
+        print('Minutes value must be a multiple of 15, try again.')
+        start_time, finish_time = input_newtime()
+        return start_time, finish_time
+
+    try:
+        start_time = time(shour, sminute)
+        finish_time = time(fhour, fminute)
+    except ValueError:
+        print('Incorrect time format, try again.')
+        start_time, finish_time = input_newtime()
+        return start_time, finish_time
+
+    if not finish_time > start_time:
+        print('Start time must be smaller than finish time, try again.')
+        start_time, finish_time = input_newtime()
+        return start_time, finish_time
+
+    if not (start_time >= time(7, 0) and finish_time <= time(23, 0)):
+        print('Course must take place between 7:00 and 23:00')
+        start_time, finish_time = input_newtime()
+        return start_time, finish_time
+
+    return start_time, finish_time
 
 
 def input_newnumber(type):
