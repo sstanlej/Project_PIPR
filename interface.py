@@ -1,129 +1,108 @@
 import os
-from data_files import data
-from classes import (TeacherPlan, Course,
+from datetime import time
+from data_handler import write_to_json, read_from_json
+from classes import (Database, TeacherPlan, Course,
                      GroupCollisionError,
                      TeacherCollisionError,
                      RoomCollisionError)
-from datetime import time
+
+
+maindatabase = Database([], [])
 
 
 def clear():
     os.system('cls')
 
 
-def print_teacher_info(printplan):
-    teacherlist = data.database0.get_allteacherslist()
+def print_teachers_info(printplan):
+    teacherlist = maindatabase.get_allteacherslist()
     x = 1
     for teacher in teacherlist:
         tname = teacher.get_name()
         tsurname = teacher.get_surname()
         tid = teacher.get_id()
         line = f'{x}. {tname} {tsurname} (id: {tid})'
-        printbox(line, 112)
+        printline(line, 112)
         if printplan == 1:
             if teacher.get_courselist() == []:
-                printbox('This teacher has no courses planned.', 112)
-                printbox(' ', 112)
-                printbox(' ', 112)
+                printline('This teacher has no courses planned.', 112)
+                printline(' ', 112)
+                printline(' ', 112)
             else:
-                printbox('Teacher plan:', 112)
+                printline('Teacher plan:', 112)
                 teacher.print_plan()
-                printbox(' ', 112)
-                printbox(' ', 112)
+                printline(' ', 112)
+                printline(' ', 112)
         x += 1
 
 
 def option1():
     clear()
-    teacherlist = data.database0.get_allteacherslist()
+    teacherlist = maindatabase.get_allteacherslist()
     if teacherlist == []:
-        print('='*60)
         no_teachers()
     else:
         print('='*114)
-        printbox('The list of all teachers:', 112)
+        printline('The list of all teachers:', 112)
         print('='*114)
-        printbox(' ', 112)
-        print_teacher_info(1)
+        printline(' ', 112)
+        print_teachers_info(1)
         print('='*114)
         input_back_to_menu()
 
 
 def option2():
     clear()
-    print('='*60)
-    printbox('Welcome to teacher creator.', 58)
-    print('='*60)
-    printbox(' ', 58)
-    printbox('Please specify unique teacher id:', 58)
-    printbox('(Can not be "0", must be shorter than 20 characters)', 58)
-    printbox(' ', 58)
-    print('='*60)
+    printbox(['Welcome to teacher creator'],
+             ['Please specify unique teacher id:',
+              '(Can not be "0", must be shorter than 20 characters)'], 60)
 
     newtid = input_newid('Teacher')
+    line1 = f'Teacher\'s chosen ID: {newtid}'
 
     clear()
-    print('='*60)
-    printbox(f'Teacher\'s chosen ID: {newtid}', 58)
-    print('='*60)
-    printbox(' ', 58)
-    printbox('Please specify teacher\'s name:', 58)
-    printbox(' ', 58)
-    print('='*60)
+    printbox([line1],
+             ['Please specify teacher\'s name:'], 60)
 
     newtname = input('>> ')
     while not newtname:
         newtname = input('>> ')
+    line2 = f'Teacher\'s chosen name: {newtname}'
 
     clear()
-    print('='*60)
-    printbox(f'Teacher\'s chosen ID: {newtid}', 58)
-    printbox(f'Teacher\'s chosen name: {newtname}', 58)
-    print('='*60)
-    printbox(' ', 58)
-    printbox('Please specify teacher\'s surname:', 58)
-    printbox(' ', 58)
-    print('='*60)
+    printbox([line1, line2],
+             ['Please specify teacher\'s surname:'], 60)
 
     newtsurname = input('>> ')
     while not newtsurname:
         newtsurname = input('>> ')
-
-    clear()
-    print('='*60)
-    printbox(f'Teacher\'s chosen ID: {newtid}', 58)
-    printbox(f'Teacher\'s chosen name: {newtname}', 58)
-    printbox(f'Teacher\'s chosen surname: {newtsurname}', 58)
-    print('='*60)
+    line3 = f'Teacher\'s chosen surname: {newtsurname}'
 
     newteacher = TeacherPlan(newtid, newtname,
                              newtsurname, [])
-    data.database0.add_teacher(newteacher)
+    maindatabase.add_teacher(newteacher)
 
-    printbox(' ', 58)
-    printbox(f'Teacher {newtname} {newtsurname} succesfully created!', 58)
-    printbox(' ', 58)
-    print('='*60)
+    clear()
+    printbox([line1, line2, line3],
+             [f'Teacher {newtname} {newtsurname} succesfully created!'], 60)
+
     input_back_to_menu()
 
 
 def option3():
     clear()
-    teacherlist = data.database0.get_allteacherslist()
+    teacherlist = maindatabase.get_allteacherslist()
     if teacherlist == []:
-        print('='*60)
-        printbox('There are no teachers in the database.', 58)
-        print('='*60)
-        input_back_to_menu()
+        no_teachers()
     else:
         print('='*114)
-        printbox('Please type the ID of the teacher you\'d like to remove.',
-                 112)
+        printline('Please type the ID of the teacher you\'d like to remove.',
+                  112)
         print('='*114)
         remflag = 0
-        print_teacher_info(0)
-        printbox(' ', 112)
-        printbox('To go back, type 0', 112)
+        print_teachers_info(0)
+        printline(' ', 112)
+        printline('To go back, type 0', 112)
         print('='*114)
         remtid = input('>> ')
         if remtid == '0':
@@ -134,7 +113,7 @@ def option3():
                 if remtid == tid:
                     tname = teacher.get_name()
                     tsurname = teacher.get_surname()
-                    data.database0.remove_teacher(remtid)
+                    maindatabase.remove_teacher(remtid)
                     print(f'Teacher {tname} {tsurname} successfully removed.')
                     print('\n')
                     input_back_to_menu()
@@ -142,23 +121,22 @@ def option3():
                     break
             if remflag == 0:
                 print('There is no teacher with specified ID\n')
-                print('='*60)
                 input_back_to_menu()
 
 
 def option4():
     clear()
-    print('='*114)
-    teacherlist = data.database0.get_allteacherslist()
+    teacherlist = maindatabase.get_allteacherslist()
     if teacherlist == []:
         no_teachers()
     else:
-        printbox('Please type the ID of the teacher you\'d like to log in as',
-                 112)
+        print('='*114)
+        printline('Please type the ID of the teacher you\'d like to log in as',
+                  112)
         logflag = 0
-        print_teacher_info(0)
-        printbox(' ', 112)
-        printbox('To go back, type 0', 112)
+        print_teachers_info(0)
+        printline(' ', 112)
+        printline('To go back, type 0', 112)
         print('='*114)
         logid = input('>> ')
         if logid == '0':
@@ -175,8 +153,24 @@ def option4():
             input_back_to_menu()
 
 
-def printbox(text, chars):
+def printline(text, chars):
     print(f'|{text:^{chars}}|')
+
+
+def printbox(title, contents, chars):
+    if not title == 0:
+        print('='*chars)
+        for item in title:
+            print(f'|{item:^{chars-2}}|')
+    print('='*chars)
+    if contents == []:
+        return
+    space = ' '
+    print(f'|{space:^{chars-2}}|')
+    for item in contents:
+        print(f'|{item:^{chars-2}}|')
+    print(f'|{space:^{chars-2}}|')
+    print('='*chars)
 
 
 def logged_in(teacher):
@@ -184,16 +178,13 @@ def logged_in(teacher):
     tsurename = teacher.get_surname()
     tid = teacher.get_id()
     clear()
-    print('='*60)
-    printbox(f'You are logged in as {tname} {tsurename} (id: {tid})', 58)
-    print('='*60)
-    printbox('What would you like to do?', 58)
-    printbox(' ', 58)
-    printbox('1. See your plan', 58)
-    printbox('2. Add a course', 58)
-    printbox('3. Remove a course', 58)
-    printbox('0. Go back to menu', 58)
-    print('='*60)
+    printbox([f'You are logged in as {tname} {tsurename} (id: {tid})'],
+             ['What would you like to do?',
+              ' ',
+              '1. See your plan',
+              '2. Add a course',
+              '3. Remove a course',
+              '0. Go back to menu'], 60)
     input_logged_in(teacher)
 
 
@@ -217,14 +208,12 @@ def course_remover(teacher):
     tname = teacher.get_name()
     tsurname = teacher.get_surname()
     if courselist == []:
-        print('='*60)
-        printbox(f'Teacher {tname} {tsurname} has no courses planned.', 58)
-        print('='*60)
+        printbox([f'Teacher {tname} {tsurname} has no courses planned.'],
+                 [], 60)
         go_back_logged_in(teacher)
     else:
-        print('='*80)
-        printbox(f'The list of {tname} {tsurname}\'s courses:', 78)
-        print('='*80)
+        line1 = f'The list of {tname} {tsurname}\'s courses:'
+        lines = []
         x = 1
         for course in courselist:
             cdname = course.get_displayname()
@@ -243,16 +232,21 @@ def course_remover(teacher):
             cftime = course.get_finish_time()
             cshour, csminute = cstime.hour, cstime.minute
             cfhour, cfminute = cftime.hour, cftime.minute
-            printbox(f'{x}. {cdname} (id: {cid})', 78)
-            printbox(f'Group: {cgroup}, Room: {croom}', 78)
-            printbox(f'Time: {cday} {cshour}:{csminute}-{cfhour}:{cfminute}',
-                     78)
-            printbox(' ', 78)
+
+            line2 = f'{x}. {cdname} (id: {cid})'
+            line3 = f'Group: {cgroup}, Room: {croom}'
+            line4 = f'Time: {cday} {cshour}:{csminute}-{cfhour}:{cfminute}'
+            line5 = ' '
+            lines.append(line2)
+            lines.append(line3)
+            lines.append(line4)
+            lines.append(line5)
             x += 1
-        printbox(' ', 78)
-        printbox('Type the ID of the course you\'d like to remove.', 78)
-        printbox('(To go back, type 0)', 78)
-        print('='*80)
+        lines.append(' ')
+        lines.append('Type the ID of the course you\'d like to remove.')
+        lines.append('(To go back, type 0)')
+        printbox([line1], lines, 80)
+
         remcid = input('>> ')
         if remcid == '0':
             logged_in(teacher)
@@ -262,20 +256,20 @@ def course_remover(teacher):
                 cid = course.get_id()
                 if remcid == cid:
                     remflag = 1
-                    teacher.remove_course(cid, data.database0)
+                    teacher.remove_course(cid, maindatabase)
                     cdname = course.get_displayname()
                     cid = course.get_id()
                     print('='*60)
-                    printbox(f'Course {cdname} (id: {cid}) removed.', 58)
+                    printline(f'Course {cdname} (id: {cid}) removed.', 58)
                     go_back_logged_in(teacher)
             if remflag == 0:
                 print('='*60)
-                printbox('There is no course with specified ID.', 58)
+                printline('There is no course with specified ID.', 58)
                 go_back_logged_in(teacher)
 
 
 def go_back_logged_in(teacher):
-    printbox('To go back, type 0', 58)
+    printline('To go back, type 0', 58)
     print('='*60)
     choice = input('>> ')
     while choice != '0':
@@ -286,23 +280,23 @@ def go_back_logged_in(teacher):
 def course_creator(teacher):
     clear()
     print('='*60)
-    printbox('Welcome to course creator.', 58)
+    printline('Welcome to course creator.', 58)
     print('='*60)
-    printbox(' ', 58)
-    printbox('Please specify unique course id:', 58)
-    printbox('(Can not be "0", must be shorter than 20 characters)', 58)
-    printbox(' ', 58)
+    printline(' ', 58)
+    printline('Please specify unique course id:', 58)
+    printline('(Can not be "0", must be shorter than 20 characters)', 58)
+    printline(' ', 58)
     print('='*60)
 
     newcid = input_newid('Course')
     clear()
     print('='*60)
-    printbox(f'Course\'s chosen ID: {newcid}', 58)
+    printline(f'Course\'s chosen ID: {newcid}', 58)
     print('='*60)
-    printbox(' ', 58)
-    printbox('Please specify course display name:', 58)
-    printbox('(max 8 characters long)', 58)
-    printbox(' ', 58)
+    printline(' ', 58)
+    printline('Please specify course display name:', 58)
+    printline('(max 8 characters long)', 58)
+    printline(' ', 58)
     print('='*60)
 
     newcdname = input('>> ')
@@ -311,43 +305,43 @@ def course_creator(teacher):
         newcdname = input('>> ')
     clear()
     print('='*60)
-    printbox(f'Course\'s chosen ID: {newcid}', 58)
-    printbox(f'Course\'s chosen display name: {newcdname}', 58)
+    printline(f'Course\'s chosen ID: {newcid}', 58)
+    printline(f'Course\'s chosen display name: {newcdname}', 58)
     print('='*60)
-    printbox(' ', 58)
-    printbox('Please specify course\'s group number:', 58)
-    printbox('(max 3 digits long, must be an integer)', 58)
-    printbox(' ', 58)
+    printline(' ', 58)
+    printline('Please specify course\'s group number:', 58)
+    printline('(max 3 digits long, must be an integer)', 58)
+    printline(' ', 58)
     print('='*60)
 
     newcgroup = input_newnumber('Group')
     clear()
     teacher.print_plan()
     print('='*60)
-    printbox(f'Course\'s chosen ID: {newcid}', 58)
-    printbox(f'Course\'s chosen display name: {newcdname}', 58)
-    printbox(f'Course\'s chosen group number: {newcgroup}', 58)
+    printline(f'Course\'s chosen ID: {newcid}', 58)
+    printline(f'Course\'s chosen display name: {newcdname}', 58)
+    printline(f'Course\'s chosen group number: {newcgroup}', 58)
     print('='*60)
-    printbox(' ', 58)
-    printbox('Please specify course\'s room number:', 58)
-    printbox('(max 3 digits long, must be an integer)', 58)
-    printbox(' ', 58)
+    printline(' ', 58)
+    printline('Please specify course\'s room number:', 58)
+    printline('(max 3 digits long, must be an integer)', 58)
+    printline(' ', 58)
     print('='*60)
 
     newcroom = input_newnumber('Room')
     clear()
     teacher.print_plan()
     print('='*60)
-    printbox(f'Course\'s chosen ID: {newcid}', 58)
-    printbox(f'Course\'s chosen display name: {newcdname}', 58)
-    printbox(f'Course\'s chosen group number: {newcgroup}', 58)
-    printbox(f'Course\'s chosen room number: {newcroom}', 58)
+    printline(f'Course\'s chosen ID: {newcid}', 58)
+    printline(f'Course\'s chosen display name: {newcdname}', 58)
+    printline(f'Course\'s chosen group number: {newcgroup}', 58)
+    printline(f'Course\'s chosen room number: {newcroom}', 58)
     print('='*60)
-    printbox(' ', 58)
-    printbox('Specify course\'s start and finish time:', 58)
-    printbox('(Format: HH:MM HH:MM e.g. 8:15 10:00)', 58)
-    printbox('(Important note: minutes must be a multiple of 15)', 58)
-    printbox(' ', 58)
+    printline(' ', 58)
+    printline('Specify course\'s start and finish time:', 58)
+    printline('(Format: HH:MM HH:MM e.g. 8:15 10:00)', 58)
+    printline('(Important note: minutes must be a multiple of 15)', 58)
+    printline(' ', 58)
     print('='*60)
 
     newcstart_time, newcfinish_time = input_newtime()
@@ -357,18 +351,18 @@ def course_creator(teacher):
     clear()
     teacher.print_plan()
     print('='*60)
-    printbox(f'Course\'s chosen ID: {newcid}', 58)
-    printbox(f'Course\'s chosen display name: {newcdname}', 58)
-    printbox(f'Course\'s chosen group number: {newcgroup}', 58)
-    printbox(f'Course\'s chosen room number: {newcroom}', 58)
-    printbox(f'Start time: {shour}:{sminute}', 58)
-    printbox(f'Finish time: {fhour}:{fminute}', 58)
+    printline(f'Course\'s chosen ID: {newcid}', 58)
+    printline(f'Course\'s chosen display name: {newcdname}', 58)
+    printline(f'Course\'s chosen group number: {newcgroup}', 58)
+    printline(f'Course\'s chosen room number: {newcroom}', 58)
+    printline(f'Start time: {shour}:{sminute}', 58)
+    printline(f'Finish time: {fhour}:{fminute}', 58)
     print('='*60)
-    printbox(' ', 58)
-    printbox('Specify course\'s day:', 58)
-    printbox('(Type one of the following:)', 58)
-    printbox('(mon, tue, wed, thu, fri)', 58)
-    printbox(' ', 58)
+    printline(' ', 58)
+    printline('Specify course\'s day:', 58)
+    printline('(Type one of the following:)', 58)
+    printline('(mon, tue, wed, thu, fri)', 58)
+    printline(' ', 58)
     print('='*60)
 
     newcday = input('>> ')
@@ -380,39 +374,39 @@ def course_creator(teacher):
                        newcstart_time, newcfinish_time, newcday)
 
     try:
-        teacher.add_course(newcourse, data.database0)
+        teacher.add_course(newcourse, maindatabase)
         clear()
         teacher.print_plan()
         print('='*60)
-        printbox(f'Course\'s chosen ID: {newcid}', 58)
-        printbox(f'Course\'s chosen display name: {newcdname}', 58)
-        printbox(f'Course\'s chosen group number: {newcgroup}', 58)
-        printbox(f'Course\'s chosen room number: {newcroom}', 58)
-        printbox(f'Start time: {shour}:{sminute}', 58)
-        printbox(f'Finish time: {fhour}:{fminute}', 58)
-        printbox(f'Course\'s day: {newcday}', 58)
+        printline(f'Course\'s chosen ID: {newcid}', 58)
+        printline(f'Course\'s chosen display name: {newcdname}', 58)
+        printline(f'Course\'s chosen group number: {newcgroup}', 58)
+        printline(f'Course\'s chosen room number: {newcroom}', 58)
+        printline(f'Start time: {shour}:{sminute}', 58)
+        printline(f'Finish time: {fhour}:{fminute}', 58)
+        printline(f'Course\'s day: {newcday}', 58)
         print('='*60)
-        printbox('Course successfully added!', 58)
+        printline('Course successfully added!', 58)
         print('='*60)
         go_back_logged_in(teacher)
     except GroupCollisionError:
-        printbox('ERROR:', 58)
-        printbox(f'Group {newcgroup} is busy at specified time.', 58)
-        printbox('Course has not been added.', 58)
+        printline('ERROR:', 58)
+        printline(f'Group {newcgroup} is busy at specified time.', 58)
+        printline('Course has not been added.', 58)
         print('='*60)
         go_back_logged_in(teacher)
     except TeacherCollisionError:
-        printbox('ERROR:', 58)
+        printline('ERROR:', 58)
         tname = teacher.get_name()
         tsurname = teacher.get_surname()
-        printbox(f'Teacher {tname} {tsurname} is busy at specified time.', 58)
-        printbox('Course has not been added.', 58)
+        printline(f'Teacher {tname} {tsurname} is busy at specified time.', 58)
+        printline('Course has not been added.', 58)
         print('='*60)
         go_back_logged_in(teacher)
     except RoomCollisionError:
-        printbox('ERROR:', 58)
-        printbox(f'Room {newcroom} is occupied at specified time.', 58)
-        printbox('Course has not been added.', 58)
+        printline('ERROR:', 58)
+        printline(f'Room {newcroom} is occupied at specified time.', 58)
+        printline('Course has not been added.', 58)
         print('='*60)
         go_back_logged_in(teacher)
 
@@ -488,9 +482,9 @@ def input_newnumber(type):
 
 def input_newid(type):
     if type == 'Course':
-        thelist = data.database0.get_allcourseslist()
+        thelist = maindatabase.get_allcourseslist()
     elif type == 'Teacher':
-        thelist = data.database0.get_allteacherslist()
+        thelist = maindatabase.get_allteacherslist()
     else:
         print('Wrong specified type')
     newcid = input('>> ')
@@ -514,29 +508,65 @@ def input_newid(type):
 def option5():
     clear()
     print('='*60)
-    print('Please specify the name of the file you want to save data to.\n')
+    printline('Current data will be save to a .json file.', 58)
+    printline('Specify the name of the file you want', 58)
+    printline('to save data to (without the .json extension)', 58)
     print('='*60)
+    file_name = input('>> ')
+    while len(file_name) > 15:
+        print('File name too long, try again.')
+        file_name = input('>> ')
+    file_name = 'data_files/' + file_name + '.json'
+
+    alldatalist = maindatabase.get_alldatalist()
+
+    with open(file_name, 'w') as fp:
+        write_to_json(fp, alldatalist)
+
+    print('='*60)
+    printline(f'Data was saved to {file_name}', 58)
+    print('='*60)
+
     input_back_to_menu()
 
 
 def option6():
     clear()
-    print('='*60)
-    print('Please specify the name of the file you want to load data from.\n')
-    print('='*60)
-    input_back_to_menu()
+    line1 = 'Data will be loaded from a .json file'
+    line2 = 'Specify the name of the file you want'
+    line3 = 'to load data from (with the .json extension)'
+    line4 = '(The file must be inside data_files folder)'
+    printbox([line1], [line2, line3, line4], 60)
+    file_name = input('>> ')
+    while not file_name:
+        file_name = input('>> ')
+    file_name = 'data_files/' + file_name
+    if not os.path.exists(file_name):
+        printline(f'{file_name} does not exist.', 58)
+        print('='*60)
+        input_back_to_menu()
+    else:
+        with open(file_name, 'r') as fp:
+            allteacherslist, allcourseslist = read_from_json(fp)
+        maindatabase.set_allcourseslist(allcourseslist)
+        maindatabase.set_allteacherslist(allteacherslist)
+        printline('Data successfully loaded', 58)
+        printline(f'from {file_name}', 58)
+        print('='*60)
+        input_back_to_menu()
 
 
 def no_teachers():
-    print('There are no teachers in the database.')
-    print('Would you like to add a new teacher?')
-    print('Y - Yes')
-    print('N - Go back to main menu')
+    printbox(0, ['There are no teachers in the database.',
+                 'Would you like to add a new teacher?',
+                 ' ',
+                 'Y - Yes',
+                 'N - Go back to main menu'], 60)
     input_and_go_addT()
 
 
 def input_back_to_menu():
-    print('To go back to menu type 0')
+    printbox(['To go back to menu, type 0'], [], 60)
     choice = input('>> ')
     if choice == '0':
         print_main_menu()
@@ -580,28 +610,39 @@ def input_and_go_menu():
         option5()
     elif choice == '6':
         option6()
+    elif choice == 'secret':
+        secretmenu()
     else:
         wrong_input_menu()
 
 
+def secretmenu():
+    print('Database allcourselist:')
+    for course in maindatabase._allcourseslist:
+        print(course.get_id(), course)
+    print('\nDatabase allteacherslist:')
+    for teacher in maindatabase._allteacherslist:
+        print(teacher.get_id(), teacher)
+    input_back_to_menu()
+
+
 def print_main_menu():
     clear()
-    print('hejka')
-    clear()
-    print('='*60)
-    printbox('Welcome to Course Planner app,', 58)
-    printbox(' that will help you plan courses for multiple groups.', 58)
-    print('='*60)
-    printbox('What would you like to do?', 58)
-    printbox(' ', 58)
-    printbox('1. See the list of all teachers and their plans', 58)
-    printbox('2. Add a new teacher', 58)
-    printbox('3. Remove a teacher from database', 58)
-    printbox('4. Log in as a teacher', 58)
-    printbox('5. Save current data into a file', 58)
-    printbox('6. Load data from a file', 58)
-    printbox('0. Exit', 58)
-    printbox(' ', 58)
-    printbox('Input a number 0-6:', 58)
-    print('='*60)
+    line1 = 'Welcome to Course Planner app,'
+    line2 = ' that will help you plan courses for multiple groups.'
+    line3 = 'What would you like to do?'
+    line4 = ' '
+    line5 = '1. See the list of all teachers and their plans'
+    line6 = '2. Add a new teacher'
+    line7 = '3. Remove a teacher from database'
+    line8 = '4. Log in as a teacher'
+    line9 = '5. Save current data into a file'
+    line10 = '6. Load data from a file'
+    line11 = '0. Exit'
+    line12 = ' '
+    line13 = 'Input a number 0-6:'
+    printbox([line1, line2],
+             [line3, line4, line5, line6,
+              line7, line8, line9, line10,
+              line11, line12, line13], 60)
     input_and_go_menu()

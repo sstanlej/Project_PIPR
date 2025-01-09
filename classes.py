@@ -2,6 +2,10 @@ from colorama import Fore
 from datetime import time
 
 
+class InvalidTimeFormat(Exception):
+    pass
+
+
 class RoomCollisionError(Exception):
     pass
 
@@ -63,16 +67,29 @@ class Database():
     def remove_course(self, oldcourse):
         self._allcourseslist.remove(oldcourse)
 
+    def clear(self):
+        for teacher in self._allteacherslist:
+            tid = teacher.get_id()
+            self.remove_teacher(tid)
+        for course in self._allcourseslist:
+            self.remove_course(course)
+
     def get_allteacherslist(self):
         return self._allteacherslist
 
     def get_allcourseslist(self):
         return self._allcourseslist
 
+    def set_allteacherslist(self, allteacherslist):
+        self._allteacherslist = allteacherslist
+
+    def set_allcourseslist(self, allcourseslist):
+        self._allcourseslist = allcourseslist
+
     def get_alldatalist(self):
         teachers = self._allteacherslist
         courses = self._allcourseslist
-        return [teachers, courses]
+        return (teachers, courses)
 
     def check_room_availability(self, nroom, nday, nstart_time, nfinish_time):
         for course in self._allcourseslist:
