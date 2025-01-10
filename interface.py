@@ -573,8 +573,12 @@ def option6():
         printbox([line1], [], 60)
         input_back_to_menu()
     else:
-        with open(file_name, 'r') as fp:
-            allteacherslist, allcourseslist = read_from_json(fp)
+        try:
+            with open(file_name, 'r') as fp:
+                allteacherslist, allcourseslist = read_from_json(fp)
+        except Exception:
+            printbox(['File format is invalid.'], [], 60)
+            input_back_to_menu()
         maindatabase.set_allcourseslist(allcourseslist)
         maindatabase.set_allteacherslist(allteacherslist)
         line1 = 'Data successfully loaded from:'

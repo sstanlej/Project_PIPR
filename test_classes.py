@@ -12,7 +12,7 @@ def test_create_course():
     course1 = Course(0, 'mako', 104, 's13',
                      start_time, finish_time, 'wednesday')
     assert course1.get_id() == 0
-    assert course1.get_name() == 'mako'
+    assert course1.get_displayname() == 'mako'
     assert course1.get_group() == 104
     assert course1.get_room() == 's13'
     assert course1.get_start_time() == start_time
@@ -28,9 +28,9 @@ def test_create_teacherplan():
 
     database1 = Database([], [])
 
-    course1 = Course('c1', 'mako', 104, 's13',
+    course1 = Course('c1', 'mako', 104, 12,
                      start_time1, finish_time1, 'wednesday')
-    course2 = Course('c2', 'mako', 104, 's13',
+    course2 = Course('c2', 'mako', 104, 12,
                      start_time2, finish_time2, 'wednesday')
 
     teacherplan1 = TeacherPlan('t1', 'Jan', 'Ban', [course1, course2])
@@ -39,7 +39,7 @@ def test_create_teacherplan():
     assert teacherplan1.get_name() == 'Jan'
     assert teacherplan1.get_surname() == 'Ban'
     courselist = teacherplan1.get_courselist()
-    assert courselist[0].get_name() == 'mako'
+    assert courselist[0].get_displayname() == 'mako'
     assert courselist[1].get_finish_time() == finish_time2
     assert len(database1.get_allteacherslist()) == 1
 
@@ -52,9 +52,9 @@ def test_add_course():
 
     database1 = Database([], [])
 
-    course1 = Course(0, 'mako', 104, 's13',
+    course1 = Course(0, 'mako', 104, 12,
                      start_time1, finish_time1, 'wednesday')
-    course2 = Course(1, 'mako', 104, 's13',
+    course2 = Course(1, 'mako', 104, 12,
                      start_time2, finish_time2, 'wednesday')
 
     teacherplan1 = TeacherPlan('Jan', 'Ban', [104], [])
@@ -62,7 +62,7 @@ def test_add_course():
 
     teacherplan1.add_course(course1, database1)
     courselist = teacherplan1.get_courselist()
-    assert courselist[0].get_name() == 'mako'
+    assert courselist[0].get_displayname() == 'mako'
     teacherplan1.add_course(course2, database1)
     courselist = teacherplan1.get_courselist()
     assert courselist[1].get_finish_time() == finish_time2
@@ -100,13 +100,13 @@ def test_course_collision():
 
     database1 = Database([], [])
 
-    course0 = Course('c0', 'mako', 104, 's13',
+    course0 = Course('c0', 'mako', 104, 13,
                      time(8, 15), time(10, 0), 'wednesday')
-    course1 = Course('c1', 'mako', 104, 's14',
+    course1 = Course('c1', 'mako', 104, 14,
                      time(9, 15), time(9, 15), 'wednesday')
-    course2 = Course('c2', 'anma', 108, 's13',
+    course2 = Course('c2', 'anma', 108, 13,
                      time(8, 15), time(10, 0), 'wednesday')
-    course3 = Course('c3', 'anma', 107, 's13',
+    course3 = Course('c3', 'anma', 107, 13,
                      time(10, 0), time(11, 45), 'wednesday')
 
     teacherplan1 = TeacherPlan('t1', 'Jan', 'Ban', [])
@@ -116,7 +116,7 @@ def test_course_collision():
 
     teacherplan1.add_course(course0, database1)
     courselist = teacherplan1.get_courselist()
-    assert courselist[0].get_name() == 'mako'
+    assert courselist[0].get_displayname() == 'mako'
     with pytest.raises(TeacherCollisionError):
         teacherplan1.add_course(course1, database1)
     with pytest.raises(RoomCollisionError):

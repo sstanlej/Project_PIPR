@@ -8,11 +8,15 @@ class InvalidFileFormat(Exception):
 
 
 def read_from_json(filehandle):
+    """
+    Returns the list of all teachers and courses
+    read from a specified file.
+    """
     allteacherslist = []
     allcourseslist = []
     data = json.load(filehandle)
-    for item in data:
-        try:
+    try:
+        for item in data:
             tid = item['tid']
             tname = item['tname']
             tsurname = item['tsurname']
@@ -38,16 +42,20 @@ def read_from_json(filehandle):
                 tcourselist.append(newcourse)
             newteacher = TeacherPlan(tid, tname, tsurname, tcourselist)
             allteacherslist.append(newteacher)
-        except Exception:
-            raise InvalidFileFormat('(teachers)File has invalid format')
-    for teacher in allteacherslist:
-        for course in teacher.get_courselist():
-            if course not in allcourseslist:
-                allcourseslist.append(course)
-    return allteacherslist, allcourseslist
+        for teacher in allteacherslist:
+            for course in teacher.get_courselist():
+                if course not in allcourseslist:
+                    allcourseslist.append(course)
+        return allteacherslist, allcourseslist
+    except Exception:
+        raise InvalidFileFormat('(teachers)File has invalid format')
 
 
 def write_to_json(filehandle, alldatalist):
+    """
+    Saves the specified list of all teacher's and their courses
+    to a specified file.
+    """
     allteacherslist = []
     for teacher in alldatalist[0]:
         tid = teacher.get_id()

@@ -1,0 +1,59 @@
+[
+    {
+        "tid": "t1",
+        "tname": "Stan",
+        "tsurname": "Ban",
+        "tcourselist": [
+            {
+                "cid": "c1",
+                "cdname": "mako",
+                "cgroup": 102,
+                "croom": 14,
+                "cshour": 7,
+                "csminute": 15,
+                "cfhour": 9,
+                "cfminute": 0,
+                "cday": "mon"
+            },
+            {
+                "cid": "c2",
+                "cdname": "anma",
+                "cgroup": 104,
+                "croom": 15,
+                "cshour": 11,
+                "csminute": 15,
+                "cfhour": 12,
+                "cfminute": 0,
+                "cday": "fri"
+            },
+            {
+                "cid": "c3",
+                "cdname": "mako",
+                "cgroup": 103,
+                "croom": 14,
+                "cshour": 9,
+                "csminute": 15,
+                "cfhour": 11,
+                "cfminute": 0,
+                "cday": "mon"
+            },
+            {
+                "cid": "c4",
+                "cdname": "mako",
+                "cgroup": 105,
+                "croom": 14,
+                "cshour": 12,
+                "csminute": 15,
+                "cfhour": 14,
+                "cfminute": 0,
+                "cday": "wed"
+            }
+        ]
+    },
+    {
+        "tid": "t2",
+        "tname": "John",
+        "tsurname": "Pork",
+        "tcourselist": []
+    }
+]

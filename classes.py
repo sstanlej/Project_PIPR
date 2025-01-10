@@ -6,6 +6,18 @@ class InvalidTimeFormat(Exception):
     pass
 
 
+class InvalidGroupNumber(Exception):
+    pass
+
+
+class InvalidRoomNumber(Exception):
+    pass
+
+
+class DisplayNameError(Exception):
+    pass
+
+
 class RoomCollisionError(Exception):
     pass
 
@@ -35,6 +47,14 @@ class WrongTeacherIdError(Exception):
 
 
 class Database():
+    """
+    Class Database, Contains attributes:
+    :param allcourseslist: list of all courses
+    :param type: list
+
+    :param allteacherslist: list of all teachers
+    :param type: list
+    """
     def __init__(self, allcourseslist, allteacherslist):
         if not allcourseslist:
             allcourseslist = []
@@ -47,14 +67,24 @@ class Database():
                 self._allcourseslist.append(course)
 
     def add_teacher(self, newteacher):
+        """
+        Adds specified teacher object to the database.
+        """
         self._allteacherslist.append(newteacher)
         for course in newteacher.get_courselist():
             self._allcourseslist.append(course)
 
     def add_course(self, newcourse):
+        """
+        Adds specified course object to the database.
+        """
         self._allcourseslist.append(newcourse)
 
     def remove_teacher(self, oldteacherID):
+        """
+        Removes a teacher object of the specified ID
+        from the database.
+        """
         for teacher in self._allteacherslist:
             teacherID = teacher.get_id()
             if oldteacherID == teacherID:
@@ -65,33 +95,48 @@ class Database():
         raise WrongTeacherIdError("No teacher with specified ID in database.")
 
     def remove_course(self, oldcourse):
+        """
+        Removes specified course from the database.
+        """
         self._allcourseslist.remove(oldcourse)
 
-    def clear(self):
-        for teacher in self._allteacherslist:
-            tid = teacher.get_id()
-            self.remove_teacher(tid)
-        for course in self._allcourseslist:
-            self.remove_course(course)
-
     def get_allteacherslist(self):
+        """
+        Returns the list of all teachers in the database.
+        """
         return self._allteacherslist
 
     def get_allcourseslist(self):
+        """
+        Returns the list of all courses in the database.
+        """
         return self._allcourseslist
 
     def set_allteacherslist(self, allteacherslist):
+        """
+        Sets the specified list as the list of all teachers.
+        """
         self._allteacherslist = allteacherslist
 
     def set_allcourseslist(self, allcourseslist):
+        """
+        Sets the specified list as the list of all courses.
+        """
         self._allcourseslist = allcourseslist
 
     def get_alldatalist(self):
+        """
+        Returns the list of all teachers and courses in the database.
+        """
         teachers = self._allteacherslist
         courses = self._allcourseslist
         return (teachers, courses)
 
     def check_room_availability(self, nroom, nday, nstart_time, nfinish_time):
+        """
+        Checks the availability of the specified room
+        in the specified day and time period.
+        """
         for course in self._allcourseslist:
             day = course.get_day()
             start_time = course.get_start_time()
@@ -110,6 +155,10 @@ class Database():
 
     def check_group_availability(self, ngroup, nday,
                                  nstart_time, nfinish_time):
+        """
+        Checks the availability of the specified group
+        in the specified day and time period.
+        """
         for course in self._allcourseslist:
             day = course.get_day()
             start_time = course.get_start_time()
@@ -128,12 +177,46 @@ class Database():
 
 
 class Course:
+    """
+    Class Course, Contains attributes:
+    :param id: unique id of the course
+    :param type: string
+
+    :param displayname: display name of the course
+    :param type: string
+
+    :param group: the number of course's group
+    :param type: int
+
+    :param room: the number of course's room
+    :param type: int
+
+    :param start_time: the start time of the course
+    :param type: time
+
+    :param finish_time: the finish time of the course
+    :param type: time
+
+    :param day: the day of the course
+    :param type: string
+    """
     def __init__(self, id, displayname, group,
                  room, start_time, finish_time, day):
         self._id = id
+        if len(displayname) > 8:
+            raise DisplayNameError("Display name must be under 8 characters")
         self._displayname = displayname
-        self._group = group
-        self._room = room
+        try:
+            int(group)
+            self._group = group
+        except ValueError:
+            raise InvalidGroupNumber("Group is not a number")
+
+        try:
+            int(room)
+            self._room = room
+        except ValueError:
+            raise InvalidRoomNumber("Room is not a number")
         self._start_time = start_time
         self._finish_time = finish_time
         self._day = day
@@ -161,6 +244,20 @@ class Course:
 
 
 class TeacherPlan:
+    """
+    Class TeacherPlan, Contains attributes:
+    :param id: unique id of the teacher
+    :param type: string
+
+    :param name: the name of the teacher
+    :param type: string
+
+    :param surname: the surname of the teacher
+    :param type: string
+
+    :param courselist: the list of teacher's courses
+    :param type: list
+    """
     def __init__(self, id, name, surname, courselist):
         self._id = id
         self._name = name
@@ -182,6 +279,10 @@ class TeacherPlan:
         return self._name
 
     def check_self_availability(self, stime, ftime, day):
+        """
+        Check availability of the teacher on the specified
+        day during specified time.
+        """
         for course in self._courselist:
             cstime = course.get_start_time()
             cftime = course.get_finish_time()
@@ -196,6 +297,10 @@ class TeacherPlan:
         return True
 
     def add_course(self, newcourse, database):
+        """
+        Adds specified course to the teacher's course list
+        and to the specified databse.
+        """
         nday = newcourse.get_day()
         nstart_time = newcourse.get_start_time()
         nfinish_time = newcourse.get_finish_time()
@@ -214,6 +319,10 @@ class TeacherPlan:
         database.add_course(newcourse)
 
     def remove_course(self, courseid, database):
+        """
+        Removes course of specified id from the teacher's course list
+        and from the specified databse.
+        """
         for course in self._courselist:
             if course.get_id() == courseid:
                 self._courselist.remove(course)
@@ -221,7 +330,11 @@ class TeacherPlan:
                 return 0
         raise WrongCourseIdError("There is no course with specified ID")
 
-    def print_lineday(self, day, checktime, c):
+    def get_lineday(self, day, checktime, c):
+        """
+        Returns a string from the teacher's plan,
+        of the specified day and time.
+        """
         if self._courselist == []:
             return ' '*20 + c
         for course in self._courselist:
@@ -243,6 +356,9 @@ class TeacherPlan:
         return line
 
     def print_plan(self):
+        """
+        Prints the whole teacher's plan.
+        """
         days = {
             'mon': '|      MONDAY        ',
             'tue': '|      TUESDAY       ',
@@ -273,7 +389,7 @@ class TeacherPlan:
                 c = '~'
             line = ''
             for day in days:
-                s = self.print_lineday(day, checktime, c)
+                s = self.get_lineday(day, checktime, c)
                 line += s
             print(f'{c}{hr}{c}{line} ')
             minute += 15
